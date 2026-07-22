@@ -1,13 +1,9 @@
-- [x] 데이터 수집 및 전처리 파이프라인 보완 (`src/fetch_etf.py`)
-  - [x] JSON 파일 내보내기 기능 추가 (`data/etf_items_latest.json`)
-- [x] 정적 대시보드 구현 (`index.html`)
-  - [x] HTML/Tailwind CSS 구조 및 테마(라이트/다크) 전환 스위치 구현
-  - [x] Plotly.js를 이용한 EDA 차트(시가총액, 운용사 점유율, 산점도, 히스토그램) 구현
-  - [x] 실시간 데이터 검색 및 필터링 테이블 구현
-- [x] GitHub Actions 자동화 워크플로우 구성 (`.github/workflows/update_data.yml`)
-  - [x] 1시간 주기 Cron 스케줄 구성
-  - [x] 데이터 갱신 후 자동 커밋/푸시 세팅
-- [x] 로컬 환경 테스트 및 검증
-  - [x] 파이썬 수집 스크립트 실행 검증
-  - [x] 로컬 웹 서버 기반 대시보드 시각화 및 인터랙션 테스트
-- [x] 완료 보고 및 가이드(Walkthrough) 작성
+- [x] 로컬 웹 서버 환경 교체
+  - [x] 기존 Python http.server (포트 8000) 중단
+  - [x] Streamlit 서버 (포트 8501) 구동
+- [x] Streamlit 대시보드 (`src/app.py`) 코드 수정
+  - [x] 운용사별 시가총액 점유율 막대 그래프 (`px.bar`) 추가/변경
+  - [x] 운용사별 트리맵 (`px.treemap`) 시각화 개선
+- [x] 로컬 환경 동작 검증 및 테스트
+  - [x] Streamlit 대시보드 시각화 및 실시간 데이터 갱신 기능 확인
+- [x] 완료 보고서 및 안내 가이드 (`walkthrough.md`) 업데이트

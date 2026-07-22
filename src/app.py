@@ -182,19 +182,19 @@ def make_market_tab(df: pd.DataFrame) -> None:
     col1, col2 = st.columns([1, 1])
 
     with col1:
-        st.markdown("##### 1. 운용사별 시가총액 점유율 (Treemap)")
-        # Treemap은 계층구조 시각화 및 점유율 파악에 우수한 차트임
-        fig_tree = px.treemap(
-            df,
-            path=["운용사", "종목명"],
-            values="시가총액(억)",
-            color="등락률",
-            color_continuous_scale="RdBu",
-            color_continuous_midpoint=0,
-            title="운용사 및 종목별 시가총액 분포 (색상: 당일 등락률)",
+        st.markdown("##### 1. 운용사별 시가총액 점유율 (막대 그래프)")
+        # 도넛 차트 대신 가독성이 높고 깔끔한 막대 그래프로 운용사별 점유율 시각화
+        fig_bar_share = px.bar(
+            agg_df,
+            x="운용사",
+            y="시가총액비율(%)",
+            text=agg_df["시가총액비율(%)"].apply(lambda x: f"{x:.1f}%"),
+            color="시가총액비율(%)",
+            color_continuous_scale="Blues",
+            labels={"시가총액비율(%)": "시장 점유율(%)"},
         )
-        fig_tree.update_layout(margin=dict(t=30, l=10, r=10, b=10))
-        st.plotly_chart(fig_tree, use_container_width=True)
+        fig_bar_share.update_layout(showlegend=False, margin=dict(t=30, l=10, r=10, b=10))
+        st.plotly_chart(fig_bar_share, use_container_width=True)
 
     with col2:
         st.markdown("##### 2. 운용사별 시가총액 및 종목수 집계")
@@ -216,10 +216,26 @@ def make_market_tab(df: pd.DataFrame) -> None:
 
     st.markdown("---")
 
+    st.markdown("##### 3. 운용사 및 소속 종목별 시가총액 분포 (Treemap)")
+    # 트리맵을 전체 너비로 크게 렌더링하여 운용사별 시총 지배력과 개별 ETF 종목의 비중을 면적으로 한눈에 파악
+    fig_tree = px.treemap(
+        df,
+        path=["운용사", "종목명"],
+        values="시가총액(억)",
+        color="등락률",
+        color_continuous_scale="RdBu",
+        color_continuous_midpoint=0,
+        title="운용사-종목별 시가총액 비중 (원 크기: 시가총액, 색상: 당일 등락률)",
+    )
+    fig_tree.update_layout(margin=dict(t=30, l=10, r=10, b=10))
+    st.plotly_chart(fig_tree, use_container_width=True)
+
+    st.markdown("---")
+
     col3, col4 = st.columns([1, 1])
 
     with col3:
-        st.markdown("##### 3. 운용사별 상장 종목 수 비교")
+        st.markdown("##### 4. 운용사별 상장 종목 수 비교")
         fig_bar_count = px.bar(
             agg_df.sort_values(by="종목수", ascending=False),
             x="운용사",
@@ -233,7 +249,7 @@ def make_market_tab(df: pd.DataFrame) -> None:
         st.plotly_chart(fig_bar_count, use_container_width=True)
 
     with col4:
-        st.markdown("##### 4. 운용사별 3개월 평균 수익률 비교")
+        st.markdown("##### 5. 운용사별 3개월 평균 수익률 비교")
         fig_bar_return = px.bar(
             agg_df.sort_values(by="평균3개월수익률", ascending=False),
             x="운용사",
