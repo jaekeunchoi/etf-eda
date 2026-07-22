@@ -113,7 +113,7 @@ def main() -> None:
     parser.add_argument(
         "--loop",
         action="store_true",
-        help="1분 간격 무한 루프로 실행합니다."
+        help="지정된 간격으로 주기적 루프 수집을 수행합니다."
     )
     parser.add_argument(
         "--interval",
@@ -121,14 +121,30 @@ def main() -> None:
         default=60,
         help="반복 수집 주기(초 단위, 기본값: 60초)"
     )
+    parser.add_argument(
+        "--duration",
+        type=int,
+        default=0,
+        help="전체 수집 프로세스 실행 시간(초 단위, 0이면 무제한 실행)"
+    )
 
     args = parser.parse_args()
 
     if args.loop:
-        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {args.interval}초 간격 무한 루프 수집을 시작합니다...")
+        duration_info: str = f" (총 {args.duration}초 작동)" if args.duration > 0 else " (무제한 작동)"
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {args.interval}초 간격 루프 수집을 시작합니다{duration_info}...")
+        
+        # 시작 시간 기록하여 경과 시간 계산 기준점 확보
+        start_time: float = time.time()
         try:
             while True:
                 run_collection_cycle()
+                
+                # 지정된 수집 기간(duration)을 경과했는지 검증
+                if args.duration > 0 and (time.time() - start_time) >= args.duration:
+                    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 지정된 실행 시간({args.duration}초)에 도달하여 루프를 자동 종료합니다.")
+                    break
+                
                 time.sleep(args.interval)
         except KeyboardInterrupt:
             print("\n[안내] 사용자에 의해 데이터 수집 루프가 종료되었습니다.")

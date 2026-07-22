@@ -1,9 +1,6 @@
-- [x] 로컬 웹 서버 환경 교체
-  - [x] 기존 Python http.server (포트 8000) 중단
-  - [x] Streamlit 서버 (포트 8501) 구동
-- [x] Streamlit 대시보드 (`src/app.py`) 코드 수정
-  - [x] 운용사별 시가총액 점유율 막대 그래프 (`px.bar`) 추가/변경
-  - [x] 운용사별 트리맵 (`px.treemap`) 시각화 개선
-- [x] 로컬 환경 동작 검증 및 테스트
-  - [x] Streamlit 대시보드 시각화 및 실시간 데이터 갱신 기능 확인
-- [x] 완료 보고서 및 안내 가이드 (`walkthrough.md`) 업데이트
+- [x] 1분 주기 수집 파이프라인 개발
+  - [x] `src/fetch_etf.py`에 수집 실행 시간제한 `--duration` 옵션 추가
+  - [x] `.github/workflows/update_data.yml`에 5분 주기 실행 및 1분 루프(260초 작동) 워크플로우 반영
+- [x] 로컬 수집 테스트 및 스크립트 검증
+  - [x] `python src/fetch_etf.py --loop --interval 10 --duration 25` 로컬 실행 테스트
+- [/] 완료 보고 및 가이드 (`walkthrough.md`) 작성 및 최종 깃 푸시

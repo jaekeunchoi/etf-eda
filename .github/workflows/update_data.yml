@@ -2,7 +2,7 @@ name: Update ETF Data
 
 on:
   schedule:
-    - cron: '0 * * * *' # 매 1시간마다 실행 (UTC 기준)
+    - cron: '*/5 * * * *' # 매 5분마다 실행 (GitHub Actions 제약 우회 및 1분 수집을 위해)
   workflow_dispatch: # 수동 실행 지원
 
 permissions:
@@ -32,7 +32,8 @@ jobs:
 
       - name: Run ETF data collector
         run: |
-          python src/fetch_etf.py
+          # 60초(1분) 주기로 260초(4분 20초) 동안 루프를 돌며 총 5회 실시간 데이터를 수집하여 data/에 저장
+          python src/fetch_etf.py --loop --interval 60 --duration 260
 
       - name: Commit and Push changes
         run: |
@@ -42,7 +43,7 @@ jobs:
           
           # 변경 사항이 있는 경우에만 커밋 및 푸시 수행
           if ! git diff --cached --quiet; then
-            git commit -m "auto: update ETF data"
+            git commit -m "auto: update ETF data (1min loop)"
             git push
           else
             echo "No changes detected in data. Skipping push."
