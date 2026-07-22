@@ -571,20 +571,23 @@ def make_diagnosis_tab(df: pd.DataFrame) -> None:
             # 괴리율 신호등
             discrepancy_abs = abs(discrepancy) if not pd.isna(discrepancy) else 0.0
             if discrepancy_abs >= 1.5:
-                st.error(f"🔴 **괴리율 위험 상태! (절대값 {discrepancy_abs:.2f}%)**")
+                discrepancy_status = "괴리율 위험 상태"
+                st.error(f"🔴 **{discrepancy_status}! (절대값 {discrepancy_abs:.2f}%)**")
                 discrepancy_desc = (
                     "현재 시장 거래가격이 실제 순자산가치(NAV) 대비 크게 왜곡되어 있습니다. "
                     "유동성공급자(LP)의 호가 제시 능력이 일시적으로 저하되었거나 시장 쏠림 현상이 격렬할 수 있으므로, "
                     "매수/매도 시 슬리피지 비용이 크게 발생할 위험이 있습니다. 즉각적인 거래를 피하거나 지정가 주문 활용을 강력히 권고합니다."
                 )
             elif discrepancy_abs >= 0.5:
-                st.warning(f"🟡 **괴리율 주의 상태 (절대값 {discrepancy_abs:.2f}%)**")
+                discrepancy_status = "괴리율 주의 상태"
+                st.warning(f"🟡 **{discrepancy_status} (절대값 {discrepancy_abs:.2f}%)**")
                 discrepancy_desc = (
                     "괴리율이 소폭 벌어져 있습니다. 일반적인 시장 수준보다 다소 높은 상태이므로, "
                     "호가 스프레드가 벌어져 있지 않은지 호가창을 확인한 후 신중하게 진입해야 합니다."
                 )
             else:
-                st.success(f"🟢 **괴리율 매우 양호 (절대값 {discrepancy_abs:.2f}%)**")
+                discrepancy_status = "괴리율 매우 양호"
+                st.success(f"🟢 **{discrepancy_status} (절대값 {discrepancy_abs:.2f}%)**")
                 discrepancy_desc = (
                     "현재 ETF 거래가격이 순자산가치(NAV)와 밀접하게 연동되어 움직이고 있습니다. "
                     "유동성 공급이 원활하게 진행되고 있으며, 시장 가격으로 매매하더라도 자산 가치 왜곡으로 인한 불이익이 최소화됩니다."
@@ -595,19 +598,22 @@ def make_diagnosis_tab(df: pd.DataFrame) -> None:
             # 거래대금 유동성 평가
             st.markdown("##### 💧 유동성 평가")
             if amount < 100:  # 하루 거래대금 1억 미만
-                st.error("🔴 **유동성 극도로 부족**")
+                liquidity_status = "유동성 극도로 부족"
+                st.error(f"🔴 **{liquidity_status}**")
                 liquidity_desc = (
                     "일일 거래대금이 1억 원 미만으로 극도로 낮습니다. 원하는 가격에 대량 매매를 실행하기 매우 어렵습니다. "
                     "작은 주문에도 시세가 요동칠 수 있으므로 기관 및 거액 개인 투자자는 거래를 보류하는 편이 안전합니다."
                 )
             elif amount < 1000:  # 하루 거래대금 10억 미만
-                st.warning("🟡 **유동성 보통 이하**")
+                liquidity_status = "유동성 보통 이하"
+                st.warning(f"🟡 **{liquidity_status}**")
                 liquidity_desc = (
                     "일일 거래대금이 10억 원 미만으로 다소 한정된 유동성을 가지고 있습니다. "
                     "소액 투자는 가능하나 분할 매매나 지정가 주문을 통해 리스크를 제한하십시오."
                 )
             else:
-                st.success("🟢 **유동성 매우 풍부**")
+                liquidity_status = "유동성 매우 풍부"
+                st.success(f"🟢 **{liquidity_status}**")
                 liquidity_desc = (
                     f"일일 거래대금이 {amount/1000:.1f}억 원(총 {amount:,.0f}백만 원) 수준으로 매우 활발하게 거래되고 있습니다. "
                     "호가 스프레드가 좁게 촘촘하게 유지되어 시장가 주문 시에도 거래 비용 손실이 매우 적습니다."
@@ -642,8 +648,8 @@ def make_diagnosis_tab(df: pd.DataFrame) -> None:
         diagnosis_report = (
             f"**[{name}]** 종목에 대한 실시간 정밀 진단 결과입니다.\n\n"
             f"1. **모멘텀 및 성과**: {return_desc}\n\n"
-            f"2. **유동성 및 집행**: 거래량 {volume:,}주 및 거래대금 {amount:,.0f}백만 원 수준으로, {liquidity_desc.split('**')[1].strip()} 수준의 집행 안정성을 보이고 있습니다.\n\n"
-            f"3. **가격 투명성**: 실제 자산과의 오차를 측정하는 괴리율이 {discrepancy:+.2f}%로 관측되며, {discrepancy_desc.split('**')[1].strip()} 수준으로 정상적 가치 추종이 가능합니다.\n\n"
+            f"2. **유동성 및 집행**: 거래량 {volume:,}주 및 거래대금 {amount:,.0f}백만 원 수준으로, {liquidity_status} 수준의 집행 안정성을 보이고 있습니다.\n\n"
+            f"3. **가격 투명성**: 실제 자산과의 오차를 측정하는 괴리율이 {discrepancy:+.2f}%로 관측되며, {discrepancy_status} 수준으로 정상적 가치 추종이 가능합니다.\n\n"
             f"**종합 의견**: 본 ETF는 `{brand}`에서 운용하며 시가총액 `{market_sum:,.0f}억 원` 규모의 구조를 가지고 있습니다. "
             f"현재 시점의 시장 정보와 통계 지표를 고려할 때, 매매 비용 통제가 유연하므로 "
             f"{'적극적인 비중 조절' if discrepancy_abs < 0.5 and amount >= 1000 else '지정가를 활용한 신중한 접근'}이 합리적입니다."
