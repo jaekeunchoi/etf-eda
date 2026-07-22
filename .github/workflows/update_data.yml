@@ -1,0 +1,49 @@
+name: Update ETF Data
+
+on:
+  schedule:
+    - cron: '0 * * * *' # 매 1시간마다 실행 (UTC 기준)
+  workflow_dispatch: # 수동 실행 지원
+
+permissions:
+  contents: write # 데이터를 커밋하고 푸시하기 위해 쓰기 권한 허용
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          uv pip install --system -r requirements.txt
+
+      - name: Run ETF data collector
+        run: |
+          python src/fetch_etf.py
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/
+          
+          # 변경 사항이 있는 경우에만 커밋 및 푸시 수행
+          if ! git diff --cached --quiet; then
+            git commit -m "auto: update ETF data"
+            git push
+          else
+            echo "No changes detected in data. Skipping push."
+          fi

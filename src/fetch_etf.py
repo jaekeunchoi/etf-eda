@@ -58,12 +58,51 @@ def save_to_csv(df: pd.DataFrame, output_dir: str = "data") -> Optional[str]:
     return file_path
 
 
+def save_to_json(df: pd.DataFrame, output_dir: str = "data") -> Optional[str]:
+    """전처리된 ETF 데이터프레임을 JSON 파일로 지정된 디렉토리에 저장합니다.
+
+    두 가지 파일 형태로 저장됩니다:
+    1. etf_items_latest.json (최신 갱신용)
+    2. etf_items_YYYYMMDD_HHMMSS.json (이력 관리용)
+
+    Args:
+        df (pd.DataFrame): 저장할 전처리 완료된 ETF 데이터프레임.
+        output_dir (str, optional): JSON 파일이 저장될 상대경로 디렉토리. 기본값은 "data".
+
+    Returns:
+        Optional[str]: 생성된 타임스탬프 JSON 파일의 상대경로, 실패 시 None.
+    """
+    if df.empty:
+        print("[경고] 수집된 ETF 데이터가 없습니다.")
+        return None
+
+    # 저장 디렉토리가 존재하지 않는 경우 생성
+    os.makedirs(output_dir, exist_ok=True)
+
+    # 현재 시각 타임스탬프 생성 (YYYYMMDD_HHMMSS)
+    now_str: str = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    # 저장 파일 경로 설정
+    file_path: str = os.path.join(output_dir, f"etf_items_{now_str}.json")
+    latest_file_path: str = os.path.join(output_dir, "etf_items_latest.json")
+
+    # JSON 파일 저장 (자바스크립트에서 파싱하기 쉽게 리스트 객체로 변환하며 한글 유지)
+    df.to_json(file_path, orient="records", force_ascii=False, indent=2)
+    df.to_json(latest_file_path, orient="records", force_ascii=False, indent=2)
+
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 실시간 ETF 데이터를 JSON으로 저장했습니다:")
+    print(f"  - 이력 파일: {file_path}")
+    print(f"  - 최신 파일: {latest_file_path}")
+    return file_path
+
+
 def run_collection_cycle() -> None:
     """1회 데이터 수집 및 저장을 수행하는 단일 주기 처리 함수."""
     try:
         # 실시간 수집 및 전처리 완료된 DataFrame 로드
         df: pd.DataFrame = load_realtime_etf_data()
         save_to_csv(df)
+        save_to_json(df)
     except Exception as e:
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] [오류] 데이터 수집 및 저장 실패: {e}")
 
